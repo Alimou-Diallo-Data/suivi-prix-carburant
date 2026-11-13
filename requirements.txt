@@ -1,0 +1,12 @@
+dash
+pandas
+plotly
+requests
+beautifulsoup4
+lxml
+html5lib
+yfinance
+SQLAlchemy
+psycopg2-binary
+python-dotenv
+apache-airflow==2.10.0

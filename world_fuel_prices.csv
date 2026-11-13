@@ -1,0 +1,12 @@
+country,region,city,fuel_type,price,unit,currency,last_update,source
+Canada,North America,Montreal,Gasoline,1.78,CAD/L,CAD,2026-03-29,Sample
+Canada,North America,Toronto,Gasoline,1.75,CAD/L,CAD,2026-03-29,Sample
+United States,North America,New York,Gasoline,3.92,USD/gal,USD,2026-03-29,AAA
+France,Europe,Paris,Gasoline,1.95,EUR/L,EUR,2026-03-29,Sample
+Germany,Europe,Berlin,Gasoline,1.88,EUR/L,EUR,2026-03-29,Sample
+Japan,Asia,Tokyo,Gasoline,182,JPY/L,JPY,2026-03-29,Sample
+India,Asia,Mumbai,Gasoline,104,INR/L,INR,2026-03-29,Sample
+United Arab Emirates,Middle East,Dubai,Gasoline,3.05,AED/L,AED,2026-03-29,Sample
+Brazil,South America,Sao Paulo,Gasoline,5.79,BRL/L,BRL,2026-03-29,Sample
+South Africa,Africa,Johannesburg,Gasoline,24.20,ZAR/L,ZAR,2026-03-29,Sample
+Australia,Oceania,Sydney,Gasoline,2.14,AUD/L,AUD,2026-03-29,Sample

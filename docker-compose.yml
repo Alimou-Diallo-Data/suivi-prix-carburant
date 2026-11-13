@@ -1,0 +1,82 @@
+version: "3.9"
+
+services:
+  db:
+    image: postgres:16
+    container_name: petrol_postgres
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-petrol}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-petrol}
+      POSTGRES_DB: ${POSTGRES_DB:-petrol_db}
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./sql:/docker-entrypoint-initdb.d
+
+  dashboard:
+    build: .
+    container_name: petrol_dashboard
+    depends_on:
+      - db
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-petrol}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-petrol}
+      POSTGRES_DB: ${POSTGRES_DB:-petrol_db}
+      POSTGRES_HOST: db
+      POSTGRES_PORT: 5432
+      DASH_HOST: 0.0.0.0
+      DASH_PORT: 8050
+    ports:
+      - "8050:8050"
+    volumes:
+      - ./:/app
+
+  airflow-init:
+    image: apache/airflow:2.10.0
+    container_name: petrol_airflow_init
+    depends_on:
+      - db
+    environment:
+      AIRFLOW__DATABASE__SQL_ALCHEMY_CONN: postgresql+psycopg2://${POSTGRES_USER:-petrol}:${POSTGRES_PASSWORD:-petrol}@db:5432/${POSTGRES_DB:-petrol_db}
+      AIRFLOW__CORE__EXECUTOR: LocalExecutor
+      AIRFLOW_UID: ${AIRFLOW_UID:-50000}
+    user: "${AIRFLOW_UID:-50000}:0"
+    command: >
+      bash -c "airflow db migrate &&
+               airflow users create --username admin --password admin --firstname admin --lastname admin --role Admin --email admin@example.com || true"
+
+  airflow-webserver:
+    image: apache/airflow:2.10.0
+    container_name: petrol_airflow_webserver
+    depends_on:
+      - airflow-init
+      - db
+    environment:
+      AIRFLOW__DATABASE__SQL_ALCHEMY_CONN: postgresql+psycopg2://${POSTGRES_USER:-petrol}:${POSTGRES_PASSWORD:-petrol}@db:5432/${POSTGRES_DB:-petrol_db}
+      AIRFLOW__CORE__EXECUTOR: LocalExecutor
+      AIRFLOW__CORE__LOAD_EXAMPLES: "false"
+    command: webserver
+    ports:
+      - "8080:8080"
+    volumes:
+      - ./dags:/opt/airflow/dags
+      - ./:/opt/airflow/project
+
+  airflow-scheduler:
+    image: apache/airflow:2.10.0
+    container_name: petrol_airflow_scheduler
+    depends_on:
+      - airflow-init
+      - db
+    environment:
+      AIRFLOW__DATABASE__SQL_ALCHEMY_CONN: postgresql+psycopg2://${POSTGRES_USER:-petrol}:${POSTGRES_PASSWORD:-petrol}@db:5432/${POSTGRES_DB:-petrol_db}
+      AIRFLOW__CORE__EXECUTOR: LocalExecutor
+      AIRFLOW__CORE__LOAD_EXAMPLES: "false"
+    command: scheduler
+    volumes:
+      - ./dags:/opt/airflow/dags
+      - ./:/opt/airflow/project
+
+volumes:
+  postgres_data:
